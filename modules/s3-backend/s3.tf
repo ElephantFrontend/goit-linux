@@ -28,3 +28,4 @@ resource "aws_s3_bucket_public_access_block" "terraform_state_pab" {
   block_public_policy     = true
   restrict_public_buckets = true
 }
+
