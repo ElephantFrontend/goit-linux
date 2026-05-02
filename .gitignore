@@ -44,3 +44,11 @@ db.sqlite3
 .DS_Store
 Thumbs.db
 
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+crash.log
+
