@@ -67,3 +67,27 @@ module "eks" {
   }
 }
 
+module "jenkins" {
+  source                             = "./modules/jenkins"
+  cluster_name                       = module.eks.cluster_name
+  cluster_endpoint                   = module.eks.cluster_endpoint
+  cluster_certificate_authority_data = module.eks.cluster_certificate_authority_data
+  admin_password                     = var.jenkins_admin_password
+
+  depends_on = [module.eks]
+}
+
+module "argo_cd" {
+  source                             = "./modules/argo_cd"
+  cluster_name                       = module.eks.cluster_name
+  cluster_endpoint                   = module.eks.cluster_endpoint
+  cluster_certificate_authority_data = module.eks.cluster_certificate_authority_data
+  app_repo_url                       = var.argocd_app_repo_url
+  app_repo_path                      = var.argocd_app_repo_path
+  app_target_revision                = var.argocd_app_target_revision
+  repo_username                      = var.argocd_repo_username
+  repo_password                      = var.argocd_repo_password
+
+  depends_on = [module.eks]
+}
+

@@ -1,78 +1,82 @@
-# lesson-7: Terraform + EKS + ECR + Helm
+# Project: Terraform + EKS + Jenkins + Argo CD
 
-Проєкт створює:
-- Terraform backend: S3 + DynamoDB lock
-- VPC: 3 public + 3 private subnet
-- ECR: репозиторій для Django image
-- EKS: Kubernetes кластер у приватних subnet
-- Helm chart: Deployment, Service (LoadBalancer), ConfigMap, HPA
+Проєкт піднімає повний CI/CD і GitOps ланцюжок у Kubernetes:
+- S3 + DynamoDB для Terraform state
+- VPC + ECR + EKS (з `aws-ebs-csi-driver` addon)
+- Jenkins через Helm для CI
+- Argo CD через Helm для GitOps
+- Helm chart `charts/django-app` для Django застосунку
 
 ## Структура
 
-- `main.tf` - підключення модулів
-- `backend.tf` - S3 backend для state
-- `outputs.tf` - загальні outputs
-- `modules/s3-backend` - S3 + DynamoDB
-- `modules/vpc` - мережа
-- `modules/ecr` - ECR
-- `modules/eks` - EKS cluster + node group
-- `charts/django-app` - Helm chart застосунку
+- `main.tf`, `backend.tf`, `variables.tf`, `outputs.tf`
+- `modules/s3-backend` - S3 bucket + DynamoDB lock table
+- `modules/vpc` - VPC, subnets, IGW, NAT, routes
+- `modules/ecr` - ECR repository
+- `modules/eks` - EKS cluster, node group, EBS CSI addon
+- `modules/jenkins` - Helm release Jenkins + JCasC Kubernetes cloud
+- `modules/argo_cd` - Helm release Argo CD + chart для Application/Repository
+- `charts/django-app` - Django Deployment/Service/ConfigMap/HPA
+- `Jenkinsfile` - pipeline build/push/update-values
 
-## Bootstrap backend
-
-Terraform не може одночасно використовувати і створювати той самий S3 backend.
-1. Тимчасово закоментуйте блок `backend "s3"` у `backend.tf`.
-2. Виконайте `terraform init && terraform apply` для створення S3/DynamoDB.
-3. Поверніть `backend "s3"` і виконайте `terraform init -migrate-state`.
-
-## Terraform
+## 1) Підготовка змінних
 
 ```bash
-cd lesson-7
+cp terraform.tfvars.example terraform.tfvars
+```
+
+Заповніть у `terraform.tfvars`:
+- `jenkins_admin_password`
+- `argocd_app_repo_url`
+- `argocd_repo_username`/`argocd_repo_password` (опційно)
+
+## 2) Terraform apply
+
+```bash
 terraform init
 terraform plan
 terraform apply
 ```
 
-## Налаштування kubectl для EKS
+## 3) Доступ до EKS
 
 ```bash
 aws eks update-kubeconfig --region us-west-2 --name lesson-7-eks
 kubectl get nodes
 ```
 
-## Push Django image в ECR
+## 4) Jenkins credentials
+
+Для `Jenkinsfile` додайте credentials у Jenkins:
+- `aws-jenkins-creds` (AWS Credentials: Access key + Secret key)
+- `aws-account-id` (String)
+- `ecr-repository-name` (String)
+- `git-token` (String, token для push у deployment repo)
+- `target-repo-url` (String, HTTPS URL deployment repo)
+
+Pipeline (`Jenkinsfile`) робить:
+1. Checkout коду з Dockerfile
+2. Build + push образу в ECR через Kaniko
+3. Оновлення `tag` у `charts/django-app/values.yaml` іншого repo
+4. Commit + push у `main`
+
+## 5) Argo CD auto-sync
+
+Argo CD Application створюється Terraform-модулем `modules/argo_cd` і:
+- стежить за `argocd_app_repo_url`
+- відслідковує `argocd_app_target_revision` (типово `main`)
+- автоматично синхронізує зміни (`prune: true`, `selfHeal: true`)
+
+Отримати початковий пароль Argo CD admin:
 
 ```bash
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-AWS_REGION=us-west-2
-ECR_REPO=lesson-7-django
-IMAGE_TAG=latest
-
-aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-docker build -t "$ECR_REPO:$IMAGE_TAG" ../
-docker tag "$ECR_REPO:$IMAGE_TAG" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG"
-docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG"
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+echo
 ```
 
-## Helm deploy
-
-Перед деплоєм оновіть `charts/django-app/values.yaml`:
-- `image.repository` -> ваш реальний ECR URL
-- `config.*` -> актуальні змінні середовища
+## 6) Видалення ресурсів
 
 ```bash
-cd lesson-7
-helm upgrade --install django-app ./charts/django-app
-kubectl get svc
-kubectl get hpa
-```
-
-## Видалення
-
-```bash
-cd lesson-7
-helm uninstall django-app
 terraform destroy
 ```
 

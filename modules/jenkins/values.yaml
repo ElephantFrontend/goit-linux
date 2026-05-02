@@ -1,0 +1,56 @@
+controller:
+  admin:
+    username: "${admin_user}"
+    password: "${admin_password}"
+
+  serviceType: "${service_type}"
+
+  installPlugins:
+    - kubernetes:4296.v20a_7e4d77cf6
+    - workflow-aggregator:596.v8c21c963d92d
+    - git:5.2.2
+    - configuration-as-code:1805.v1455f39c04cf
+    - credentials-binding:681.vf91669a_32e45
+    - aws-credentials:227.vc03f6f93d5a_9
+
+  JCasC:
+    defaultConfig: true
+    configScripts:
+      kubernetes-agent: |
+        jenkins:
+          clouds:
+            - kubernetes:
+                name: "kubernetes"
+                namespace: "${namespace}"
+                jenkinsUrl: "http://jenkins.${namespace}.svc.cluster.local:8080"
+                containerCapStr: "10"
+                templates:
+                  - name: "kaniko-git"
+                    namespace: "${namespace}"
+                    label: "kaniko-git"
+                    serviceAccount: "default"
+                    yaml: |
+                      apiVersion: v1
+                      kind: Pod
+                      spec:
+                        containers:
+                          - name: git
+                            image: alpine/git:2.45.2
+                            command: ["sh", "-c", "sleep 99d"]
+                            tty: true
+                          - name: kaniko
+                            image: gcr.io/kaniko-project/executor:v1.23.2-debug
+                            command: ["sh", "-c", "sleep 99d"]
+                            tty: true
+                            volumeMounts:
+                              - name: docker-config
+                                mountPath: /kaniko/.docker/
+                        volumes:
+                          - name: docker-config
+                            emptyDir: {}
+
+persistence:
+  enabled: true
+  storageClass: "gp2"
+  size: "20Gi"
+

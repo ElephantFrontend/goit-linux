@@ -1,0 +1,7 @@
+jenkins_admin_password   = "change-me"
+argocd_app_repo_url      = "https://github.com/your-org/your-deploy-repo.git"
+argocd_app_repo_path     = "charts/django-app"
+argocd_app_target_revision = "main"
+argocd_repo_username     = ""
+argocd_repo_password     = ""
+

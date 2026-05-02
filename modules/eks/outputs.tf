@@ -23,3 +23,8 @@ output "node_group_name" {
   value       = aws_eks_node_group.this.node_group_name
 }
 
+output "ebs_csi_driver_status" {
+  description = "EBS CSI addon status"
+  value       = try(aws_eks_addon.aws_ebs_csi_driver[0].status, null)
+}
+

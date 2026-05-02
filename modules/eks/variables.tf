@@ -43,6 +43,18 @@ variable "max_size" {
   default     = 6
 }
 
+variable "enable_ebs_csi_driver" {
+  description = "Enable AWS EBS CSI driver addon"
+  type        = bool
+  default     = true
+}
+
+variable "ebs_csi_driver_version" {
+  description = "Specific version for aws-ebs-csi-driver addon (empty for latest)"
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Tags applied to resources"
   type        = map(string)
