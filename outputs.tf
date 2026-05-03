@@ -38,6 +38,26 @@ output "eks_ebs_csi_driver_status" {
   value       = module.eks.ebs_csi_driver_status
 }
 
+output "rds_endpoint" {
+  description = "Primary endpoint of the created database"
+  value       = module.rds.endpoint
+}
+
+output "rds_reader_endpoint" {
+  description = "Reader endpoint (Aurora only)"
+  value       = module.rds.reader_endpoint
+}
+
+output "rds_port" {
+  description = "Database port"
+  value       = module.rds.port
+}
+
+output "rds_security_group_id" {
+  description = "Security group ID attached to the database"
+  value       = module.rds.security_group_id
+}
+
 output "kubectl_update_kubeconfig_command" {
   description = "Command to configure kubectl context"
   value       = "aws eks update-kubeconfig --region us-west-2 --name ${module.eks.cluster_name}"

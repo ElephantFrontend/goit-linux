@@ -67,6 +67,28 @@ module "eks" {
   }
 }
 
+module "rds" {
+  source               = "./modules/rds"
+  name                 = "lesson-7-db"
+  use_aurora           = var.rds_use_aurora
+  engine               = var.rds_engine
+  engine_version       = var.rds_engine_version
+  instance_class       = var.rds_instance_class
+  multi_az             = var.rds_multi_az
+  database_name        = var.rds_database_name
+  username             = var.rds_username
+  password             = var.rds_password
+  vpc_id               = module.vpc.vpc_id
+  subnet_ids           = module.vpc.private_subnet_ids
+  allowed_cidr_blocks  = var.rds_allowed_cidr_blocks
+  parameter_group_family = var.rds_parameter_group_family
+
+  tags = {
+    Project = "lesson-7"
+    Module  = "rds"
+  }
+}
+
 module "jenkins" {
   source                             = "./modules/jenkins"
   cluster_name                       = module.eks.cluster_name

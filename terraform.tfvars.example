@@ -5,3 +5,13 @@ argocd_app_target_revision = "main"
 argocd_repo_username     = ""
 argocd_repo_password     = ""
 
+rds_use_aurora           = true
+rds_engine               = "aurora-postgresql"
+rds_engine_version       = "15.4"
+rds_instance_class       = "db.t4g.medium"
+rds_multi_az             = false
+rds_database_name        = "appdb"
+rds_username             = "postgres"
+rds_password             = "change-me-db-password"
+rds_allowed_cidr_blocks  = ["10.0.0.0/16"]
+

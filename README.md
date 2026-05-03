@@ -3,6 +3,7 @@
 Проєкт піднімає повний CI/CD і GitOps ланцюжок у Kubernetes:
 - S3 + DynamoDB для Terraform state
 - VPC + ECR + EKS (з `aws-ebs-csi-driver` addon)
+- Універсальний RDS модуль (Aurora або standard RDS)
 - Jenkins через Helm для CI
 - Argo CD через Helm для GitOps
 - Helm chart `charts/django-app` для Django застосунку
@@ -14,6 +15,7 @@
 - `modules/vpc` - VPC, subnets, IGW, NAT, routes
 - `modules/ecr` - ECR repository
 - `modules/eks` - EKS cluster, node group, EBS CSI addon
+- `modules/rds` - Aurora/RDS + subnet group + security group + parameter group
 - `modules/jenkins` - Helm release Jenkins + JCasC Kubernetes cloud
 - `modules/argo_cd` - Helm release Argo CD + chart для Application/Repository
 - `charts/django-app` - Django Deployment/Service/ConfigMap/HPA
@@ -29,6 +31,17 @@ cp terraform.tfvars.example terraform.tfvars
 - `jenkins_admin_password`
 - `argocd_app_repo_url`
 - `argocd_repo_username`/`argocd_repo_password` (опційно)
+- `rds_password`
+
+### RDS mode switch
+
+- `rds_use_aurora = true` -> створюється Aurora Cluster + writer instance
+- `rds_use_aurora = false` -> створюється одна `aws_db_instance`
+
+В обох режимах модуль створює:
+- DB Subnet Group
+- Security Group
+- Parameter Group (базові параметри: `max_connections`, `log_statement`, `work_mem`)
 
 ## 2) Terraform apply
 
