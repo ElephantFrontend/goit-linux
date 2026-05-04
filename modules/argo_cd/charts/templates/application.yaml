@@ -3,24 +3,20 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ .name }}
-  namespace: {{ .namespace }}
+  namespace: argocd
 spec:
-  project: {{ .project | default "default" }}
+  project: {{ default "default" .project }}
   source:
     repoURL: {{ .repoURL }}
-    targetRevision: {{ .targetRevision | default "main" }}
+    targetRevision: {{ default "HEAD" .targetRevision }}
     path: {{ .path }}
   destination:
-    server: {{ .destination.server | default "https://kubernetes.default.svc" }}
-    namespace: {{ .destination.namespace | default "default" }}
+    server: https://kubernetes.default.svc
+    namespace: {{ .namespace }}
   syncPolicy:
-    {{- if .syncPolicy.automated }}
     automated:
-      prune: {{ .syncPolicy.automated.prune | default true }}
-      selfHeal: {{ .syncPolicy.automated.selfHeal | default true }}
-    {{- end }}
-    syncOptions:
-      - CreateNamespace=true
+      prune: true
+      selfHeal: true
 ---
 {{- end }}
 

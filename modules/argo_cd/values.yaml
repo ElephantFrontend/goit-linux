@@ -1,8 +1,10 @@
+server:
+  service:
+    type: ClusterIP
+  extraArgs:
+    - --insecure
+
 configs:
   params:
     server.insecure: true
-
-server:
-  service:
-    type: "${service_type}"
 

@@ -1,16 +1,22 @@
+variable "project_name" {
+  description = "Project name"
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+}
+
 variable "bucket_name" {
-  description = "Globally unique S3 bucket name for Terraform state"
+  description = "S3 bucket name override"
   type        = string
+  default     = ""
 }
 
-variable "table_name" {
-  description = "DynamoDB table name for Terraform state locking"
+variable "dynamodb_table_name" {
+  description = "DynamoDB table name override"
   type        = string
-}
-
-variable "tags" {
-  description = "Tags applied to resources"
-  type        = map(string)
-  default     = {}
+  default     = ""
 }
 

@@ -8,74 +8,30 @@ variable "cluster_endpoint" {
   type        = string
 }
 
-variable "cluster_certificate_authority_data" {
-  description = "EKS cluster CA certificate (base64)"
+variable "cluster_ca_certificate" {
+  description = "Base64 CA certificate from EKS"
   type        = string
 }
 
-variable "namespace" {
-  description = "Namespace for Argo CD"
+variable "argocd_namespace" {
+  description = "Argo CD namespace"
   type        = string
   default     = "argocd"
 }
 
-variable "chart_version" {
-  description = "Argo CD Helm chart version"
+variable "monitoring_namespace" {
+  description = "Monitoring namespace"
   type        = string
-  default     = "7.8.2"
+  default     = "monitoring"
 }
 
-variable "service_type" {
-  description = "Argo CD server service type"
-  type        = string
-  default     = "LoadBalancer"
-}
-
-variable "app_name" {
-  description = "Argo CD Application name"
-  type        = string
-  default     = "django-app"
-}
-
-variable "app_namespace" {
-  description = "Namespace where app should be deployed"
-  type        = string
-  default     = "default"
-}
-
-variable "app_repo_url" {
-  description = "Git repo URL with Helm chart for the app"
+variable "argocd_chart_version" {
+  description = "Argo CD chart version"
   type        = string
 }
 
-variable "app_repo_path" {
-  description = "Path to Helm chart in app repo"
+variable "monitoring_chart_version" {
+  description = "kube-prometheus-stack chart version"
   type        = string
-  default     = "charts/django-app"
-}
-
-variable "app_target_revision" {
-  description = "Git branch/tag Argo CD should track"
-  type        = string
-  default     = "main"
-}
-
-variable "repo_name" {
-  description = "Repository alias inside Argo CD"
-  type        = string
-  default     = "django-repo"
-}
-
-variable "repo_username" {
-  description = "Username for Git repo auth (if needed)"
-  type        = string
-  default     = ""
-}
-
-variable "repo_password" {
-  description = "Password/token for Git repo auth (if needed)"
-  type        = string
-  default     = ""
-  sensitive   = true
 }
 

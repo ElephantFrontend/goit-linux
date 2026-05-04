@@ -1,0 +1,22 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE_NAME = "goit-linux-django"
+  }
+
+  stages {
+    stage('Lint') {
+      steps {
+        sh 'python -m py_compile app/manage.py app/app/*.py'
+      }
+    }
+
+    stage('Build Docker image') {
+      steps {
+        sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+      }
+    }
+  }
+}
+

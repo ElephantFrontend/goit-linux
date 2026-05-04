@@ -1,17 +1,10 @@
-jenkins_admin_password   = "change-me"
-argocd_app_repo_url      = "https://github.com/your-org/your-deploy-repo.git"
-argocd_app_repo_path     = "charts/django-app"
-argocd_app_target_revision = "main"
-argocd_repo_username     = ""
-argocd_repo_password     = ""
+project_name   = "goit-linux"
+environment    = "dev"
+aws_region     = "eu-central-1"
+db_password    = "ChangeMe123!"
 
-rds_use_aurora           = true
-rds_engine               = "aurora-postgresql"
-rds_engine_version       = "15.4"
-rds_instance_class       = "db.t4g.medium"
-rds_multi_az             = false
-rds_database_name        = "appdb"
-rds_username             = "postgres"
-rds_password             = "change-me-db-password"
-rds_allowed_cidr_blocks  = ["10.0.0.0/16"]
+# Enable this only for one-time backend bootstrap apply.
+create_backend_resources     = false
+backend_bucket_name          = "goit-linux-terraform-state"
+backend_dynamodb_table_name  = "goit-linux-terraform-locks"
 

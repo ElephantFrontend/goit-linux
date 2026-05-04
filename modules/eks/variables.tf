@@ -3,61 +3,43 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "cluster_version" {
+variable "kubernetes_version" {
   description = "Kubernetes version"
   type        = string
-  default     = "1.29"
 }
 
 variable "vpc_id" {
-  description = "VPC ID where EKS will run"
+  description = "VPC ID"
   type        = string
 }
 
 variable "subnet_ids" {
-  description = "Subnet IDs for EKS control plane and nodes"
+  description = "Subnet IDs for control plane"
   type        = list(string)
 }
 
-variable "instance_types" {
-  description = "Worker node instance types"
+variable "node_subnet_ids" {
+  description = "Subnet IDs for node group"
   type        = list(string)
-  default     = ["t3.medium"]
 }
 
-variable "desired_size" {
-  description = "Desired number of worker nodes"
+variable "node_group_desired_size" {
+  description = "Desired node count"
   type        = number
-  default     = 2
 }
 
-variable "min_size" {
-  description = "Minimum number of worker nodes"
+variable "node_group_min_size" {
+  description = "Minimum node count"
   type        = number
-  default     = 2
 }
 
-variable "max_size" {
-  description = "Maximum number of worker nodes"
+variable "node_group_max_size" {
+  description = "Maximum node count"
   type        = number
-  default     = 6
 }
 
-variable "enable_ebs_csi_driver" {
-  description = "Enable AWS EBS CSI driver addon"
-  type        = bool
-  default     = true
-}
-
-variable "ebs_csi_driver_version" {
-  description = "Specific version for aws-ebs-csi-driver addon (empty for latest)"
-  type        = string
-  default     = ""
-}
-
-variable "tags" {
-  description = "Tags applied to resources"
-  type        = map(string)
-  default     = {}
+variable "node_instance_types" {
+  description = "Node instance types"
+  type        = list(string)
 }
 

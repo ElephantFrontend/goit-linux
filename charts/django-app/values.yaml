@@ -1,36 +1,34 @@
 replicaCount: 2
 
 image:
-  repository: "123456789012.dkr.ecr.us-west-2.amazonaws.com/lesson-7-django"
-  tag: "latest"
+  repository: your-account.dkr.ecr.eu-central-1.amazonaws.com/goit-linux-dev-django
+  tag: latest
   pullPolicy: IfNotPresent
 
 service:
-  type: LoadBalancer
-  port: 80
-  targetPort: 8000
-
-config:
-  DJANGO_SECRET_KEY: "change-me-in-prod"
-  DEBUG: "False"
-  ALLOWED_HOSTS: "*"
-  DB_NAME: "django_db"
-  DB_USER: "django_user"
-  DB_PASSWORD: "django_pass"
-  DB_HOST: "postgres-service"
-  DB_PORT: "5432"
+  type: ClusterIP
+  port: 8000
 
 resources:
   requests:
-    cpu: "200m"
-    memory: "256Mi"
+    cpu: 100m
+    memory: 128Mi
   limits:
-    cpu: "500m"
-    memory: "512Mi"
+    cpu: 500m
+    memory: 512Mi
+
+env:
+  DJANGO_DEBUG: "False"
+  DJANGO_ALLOWED_HOSTS: "*"
+  DATABASE_HOST: ""
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "appdb"
+  DATABASE_USER: "appuser"
+  DATABASE_PASSWORD: "ChangeMe123!"
 
 autoscaling:
   enabled: true
   minReplicas: 2
-  maxReplicas: 6
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 70
 

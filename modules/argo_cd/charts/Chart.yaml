@@ -1,7 +1,6 @@
 apiVersion: v2
-name: argo-cd-apps
-description: Helm chart for Argo CD applications and repositories
-type: application
+name: argocd-apps
 version: 0.1.0
-appVersion: "1.0.0"
+type: application
+description: Create Argo CD applications and repository credentials
 

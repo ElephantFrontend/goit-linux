@@ -1,96 +1,126 @@
-variable "jenkins_admin_password" {
-  description = "Admin password for Jenkins"
+variable "project_name" {
+  description = "Project name prefix"
   type        = string
-  sensitive   = true
+  default     = "goit-linux"
 }
 
-variable "argocd_app_repo_url" {
-  description = "Git repository URL with Helm chart tracked by Argo CD"
+variable "environment" {
+  description = "Environment name"
   type        = string
+  default     = "dev"
 }
 
-variable "argocd_app_repo_path" {
-  description = "Path to Helm chart in app repository"
+variable "aws_region" {
+  description = "AWS region"
   type        = string
-  default     = "charts/django-app"
+  default     = "eu-central-1"
 }
 
-variable "argocd_app_target_revision" {
-  description = "Branch/tag Argo CD tracks"
+variable "vpc_cidr" {
+  description = "VPC CIDR"
   type        = string
-  default     = "main"
+  default     = "10.10.0.0/16"
 }
 
-variable "argocd_repo_username" {
-  description = "Optional username for Argo CD repository access"
+variable "az_count" {
+  description = "How many AZs to use"
+  type        = number
+  default     = 2
+}
+
+variable "kubernetes_version" {
+  description = "EKS Kubernetes version"
   type        = string
-  default     = ""
+  default     = "1.29"
 }
 
-variable "argocd_repo_password" {
-  description = "Optional password/token for Argo CD repository access"
-  type        = string
-  default     = ""
-  sensitive   = true
+variable "node_group_desired_size" {
+  description = "EKS node group desired size"
+  type        = number
+  default     = 2
 }
 
-variable "rds_use_aurora" {
-  description = "If true deploy Aurora, otherwise deploy standard RDS instance"
-  type        = bool
-  default     = true
+variable "node_group_min_size" {
+  description = "EKS node group min size"
+  type        = number
+  default     = 1
 }
 
-variable "rds_engine" {
-  description = "Database engine"
-  type        = string
-  default     = "aurora-postgresql"
+variable "node_group_max_size" {
+  description = "EKS node group max size"
+  type        = number
+  default     = 3
 }
 
-variable "rds_engine_version" {
-  description = "Database engine version"
-  type        = string
-  default     = "15.4"
+variable "node_instance_types" {
+  description = "EKS node instance types"
+  type        = list(string)
+  default     = ["t3.medium"]
 }
 
-variable "rds_instance_class" {
-  description = "RDS/Aurora instance class"
-  type        = string
-  default     = "db.t4g.medium"
-}
-
-variable "rds_multi_az" {
-  description = "Multi-AZ for standard RDS mode"
-  type        = bool
-  default     = false
-}
-
-variable "rds_database_name" {
-  description = "Initial database name"
+variable "db_name" {
+  description = "Database name"
   type        = string
   default     = "appdb"
 }
 
-variable "rds_username" {
-  description = "Master username"
+variable "db_username" {
+  description = "Database admin username"
   type        = string
-  default     = "postgres"
+  default     = "appuser"
 }
 
-variable "rds_password" {
-  description = "Master password"
+variable "db_password" {
+  description = "Database admin password"
   type        = string
   sensitive   = true
 }
 
-variable "rds_allowed_cidr_blocks" {
-  description = "CIDR blocks allowed to connect to the DB"
-  type        = list(string)
-  default     = ["10.0.0.0/16"]
+variable "create_rds_instance" {
+  description = "Create standalone RDS instance"
+  type        = bool
+  default     = true
 }
 
-variable "rds_parameter_group_family" {
-  description = "Optional parameter group family override"
+variable "create_aurora" {
+  description = "Create Aurora cluster"
+  type        = bool
+  default     = false
+}
+
+variable "jenkins_chart_version" {
+  description = "Jenkins Helm chart version"
   type        = string
-  default     = null
+  default     = "5.8.52"
+}
+
+variable "argocd_chart_version" {
+  description = "Argo CD Helm chart version"
+  type        = string
+  default     = "7.8.2"
+}
+
+variable "monitoring_chart_version" {
+  description = "kube-prometheus-stack chart version"
+  type        = string
+  default     = "61.7.2"
+}
+
+variable "create_backend_resources" {
+  description = "Create S3 and DynamoDB for Terraform backend"
+  type        = bool
+  default     = false
+}
+
+variable "backend_bucket_name" {
+  description = "Existing or to-be-created backend bucket name"
+  type        = string
+  default     = ""
+}
+
+variable "backend_dynamodb_table_name" {
+  description = "Existing or to-be-created backend table name"
+  type        = string
+  default     = ""
 }
 

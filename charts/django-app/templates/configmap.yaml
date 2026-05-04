@@ -1,16 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "django-app.fullname" . }}-config
-  labels:
-    {{- include "django-app.labels" . | nindent 4 }}
+  name: {{ include "django-app.fullname" . }}-env
 data:
-  DJANGO_SECRET_KEY: {{ .Values.config.DJANGO_SECRET_KEY | quote }}
-  DEBUG: {{ .Values.config.DEBUG | quote }}
-  ALLOWED_HOSTS: {{ .Values.config.ALLOWED_HOSTS | quote }}
-  DB_NAME: {{ .Values.config.DB_NAME | quote }}
-  DB_USER: {{ .Values.config.DB_USER | quote }}
-  DB_PASSWORD: {{ .Values.config.DB_PASSWORD | quote }}
-  DB_HOST: {{ .Values.config.DB_HOST | quote }}
-  DB_PORT: {{ .Values.config.DB_PORT | quote }}
+  DJANGO_DEBUG: {{ .Values.env.DJANGO_DEBUG | quote }}
+  DJANGO_ALLOWED_HOSTS: {{ .Values.env.DJANGO_ALLOWED_HOSTS | quote }}
+  DATABASE_HOST: {{ .Values.env.DATABASE_HOST | quote }}
+  DATABASE_PORT: {{ .Values.env.DATABASE_PORT | quote }}
+  DATABASE_NAME: {{ .Values.env.DATABASE_NAME | quote }}
+  DATABASE_USER: {{ .Values.env.DATABASE_USER | quote }}
+  DATABASE_PASSWORD: {{ .Values.env.DATABASE_PASSWORD | quote }}
 

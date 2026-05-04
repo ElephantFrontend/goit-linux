@@ -1,10 +1,10 @@
-output "s3_bucket_url" {
-  description = "S3 URL of the Terraform state bucket"
-  value       = "s3://${aws_s3_bucket.terraform_state.id}"
+output "s3_bucket_name" {
+  description = "Terraform state bucket"
+  value       = aws_s3_bucket.terraform_state.bucket
 }
 
 output "dynamodb_table_name" {
-  description = "DynamoDB table name for state locking"
+  description = "Terraform lock table"
   value       = aws_dynamodb_table.terraform_locks.name
 }
 

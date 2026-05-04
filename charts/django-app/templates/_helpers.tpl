@@ -10,10 +10,3 @@
 {{- end -}}
 {{- end -}}
 
-{{- define "django-app.labels" -}}
-app.kubernetes.io/name: {{ include "django-app.name" . }}
-helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
-

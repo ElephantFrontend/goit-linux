@@ -1,20 +1,15 @@
-output "namespace" {
-  description = "Argo CD namespace"
-  value       = var.namespace
+output "argocd_server_service_name" {
+  description = "Argo CD server service name"
+  value       = "argocd-server"
 }
 
-output "release_name" {
-  description = "Argo CD Helm release name"
-  value       = helm_release.argo_cd.name
+output "argocd_initial_admin_password_secret" {
+  description = "Secret with Argo CD initial admin password"
+  value       = "argocd-initial-admin-secret"
 }
 
-output "server_service" {
-  description = "Argo CD server service DNS"
-  value       = "argocd-server.${var.namespace}.svc.cluster.local"
-}
-
-output "initial_admin_password_command" {
-  description = "Command to read initial Argo CD admin password"
-  value       = "kubectl -n ${var.namespace} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"
+output "grafana_service_name" {
+  description = "Grafana service name"
+  value       = "grafana"
 }
 

@@ -3,17 +3,14 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: repo-{{ .name }}
-  namespace: {{ $.Release.Namespace }}
+  namespace: argocd
   labels:
     argocd.argoproj.io/secret-type: repository
-type: Opaque
 stringData:
-  name: {{ .name }}
-  type: {{ .type | default "git" }}
+  type: {{ default "git" .type }}
   url: {{ .url }}
-  username: {{ .username | default "" | quote }}
-  password: {{ .password | default "" | quote }}
+  username: {{ default "" .username }}
+  password: {{ default "" .password }}
 ---
 {{- end }}
-
 

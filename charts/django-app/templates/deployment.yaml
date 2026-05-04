@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "django-app.fullname" . }}
-  labels:
-    {{- include "django-app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -21,10 +19,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.targetPort }}
+            - containerPort: 8000
           envFrom:
             - configMapRef:
-                name: {{ include "django-app.fullname" . }}-config
+                name: {{ include "django-app.fullname" . }}-env
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 
