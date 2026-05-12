@@ -2,19 +2,125 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "goit-linux-django"
+    AWS_REGION         = "eu-central-1"
+    ECR_REGISTRY       = "YOUR_AWS_ACCOUNT_ID.dkr.ecr.eu-central-1.amazonaws.com"
+    ECR_REPOSITORY     = "goit-linux-dev-django"
+    CHART_VALUES_FILE  = "charts/django-app/values.yaml"
+    AWS_CREDENTIALS_ID = "aws-jenkins-ecr"
+    GIT_CREDENTIALS_ID = "git-credentials"
+    GIT_USER_NAME      = "jenkins-bot"
+    GIT_USER_EMAIL     = "jenkins-bot@example.com"
   }
 
   stages {
     stage('Lint') {
       steps {
-        sh 'python -m py_compile app/manage.py app/app/*.py'
+        dir('Django') {
+          sh 'python -m py_compile app/manage.py app/app/*.py'
+        }
       }
     }
 
-    stage('Build Docker image') {
+    stage('Set image tag') {
       steps {
-        sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+        script {
+          env.IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+        }
+      }
+    }
+
+    stage('Build & Push to ECR (Kaniko)') {
+      agent {
+        kubernetes {
+          defaultContainer 'kaniko'
+          yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:v1.23.2-debug
+      command:
+        - /busybox/cat
+      tty: true
+'''
+        }
+      }
+      steps {
+        container('kaniko') {
+          withCredentials([
+            usernamePassword(
+              credentialsId: env.AWS_CREDENTIALS_ID,
+              usernameVariable: 'AWS_ACCESS_KEY_ID',
+              passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+            )
+          ]) {
+            sh '''#!/busybox/sh
+set -e
+mkdir -p /kaniko/.docker
+cat > /kaniko/.docker/config.json <<EOF
+{
+  "credHelpers": {
+    "${ECR_REGISTRY}": "ecr-login"
+  }
+}
+EOF
+
+/kaniko/executor \
+  --context "${WORKSPACE}/Django" \
+  --dockerfile "${WORKSPACE}/Django/Dockerfile" \
+  --destination "${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
+  --destination "${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
+'''
+          }
+        }
+      }
+    }
+
+    stage('Update Helm values') {
+      steps {
+        sh '''#!/bin/sh
+set -e
+sed -E -i.bak "s|^([[:space:]]*repository:[[:space:]]*).*$|\\1${ECR_REGISTRY}/${ECR_REPOSITORY}|" "${CHART_VALUES_FILE}"
+sed -E -i.bak "s|^([[:space:]]*tag:[[:space:]]*).*$|\\1${IMAGE_TAG}|" "${CHART_VALUES_FILE}"
+rm -f "${CHART_VALUES_FILE}.bak"
+'''
+      }
+    }
+
+    stage('Commit & Push chart change') {
+      steps {
+        withCredentials([
+          usernamePassword(
+            credentialsId: env.GIT_CREDENTIALS_ID,
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_PASSWORD'
+          )
+        ]) {
+          sh '''#!/bin/sh
+set -e
+git config user.name "${GIT_USER_NAME}"
+git config user.email "${GIT_USER_EMAIL}"
+
+if git diff --quiet -- "${CHART_VALUES_FILE}"; then
+  echo "No changes in ${CHART_VALUES_FILE}."
+  exit 0
+fi
+
+git add "${CHART_VALUES_FILE}"
+git commit -m "ci: update django image tag to ${IMAGE_TAG}"
+
+TARGET_BRANCH="${CHANGE_BRANCH:-${BRANCH_NAME:-main}}"
+REMOTE_URL="$(git config --get remote.origin.url)"
+
+if echo "${REMOTE_URL}" | grep -q '^https://'; then
+  git push "https://${GIT_USERNAME}:${GIT_PASSWORD}@${REMOTE_URL#https://}" "HEAD:${TARGET_BRANCH}"
+else
+  echo "Remote is not HTTPS, push via token URL is skipped."
+  exit 1
+fi
+'''
+        }
       }
     }
   }

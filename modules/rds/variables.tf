@@ -83,3 +83,21 @@ variable "aurora_engine_version" {
   default     = "15.4"
 }
 
+variable "db_max_connections" {
+  description = "PostgreSQL max_connections value"
+  type        = string
+  default     = "200"
+}
+
+variable "db_log_statement" {
+  description = "PostgreSQL log_statement value"
+  type        = string
+  default     = "ddl"
+}
+
+variable "db_work_mem" {
+  description = "PostgreSQL work_mem value (in kB for numeric values)"
+  type        = string
+  default     = "4096"
+}
+
